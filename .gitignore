@@ -6,3 +6,9 @@ venv/
 .env
 data/raw/
 __pycache__/
+data/processed/paysim_processed.csv
+data/processed/paysim_high_risk.csv
+data/processed/banksim_processed.csv
+data/raw/
+rag/vectorstore/
+venv/
