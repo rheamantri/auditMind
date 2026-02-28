@@ -1,0 +1,14 @@
+{
+  "total_transactions": 6362604,
+  "flagged_structuring": 104080,
+  "flagged_balance_drain": 1520581,
+  "flagged_funds_not_received": 4174,
+  "high_risk_count": 1557525,
+  "fraud_in_dataset": 8197,
+  "typology_breakdown": {
+    "Balance Manipulation": 4947151,
+    "Normal": 1307388,
+    "Structuring (FATF Rec. 10)": 104080,
+    "Layering (FATF Rec. 10/16)": 3985
+  }
+}
