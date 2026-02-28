@@ -606,12 +606,32 @@ with col_chat:
             f"**Rationale:** {rationale}\n\n"
             f"*See the Analysis Panel → for full breakdown, charts, citations and scenario projection.*"
         )
+        level_color = {"HIGH": "#f87171", "MEDIUM": "#fbbf24", "LOW": "#34d399"}.get(
+            mat.get("level", "LOW"), "#94a3b8"
+        )
+        dec_color = {"ESCALATE": "#f87171", "INVESTIGATE": "#60a5fa",
+                    "REVIEW": "#fbbf24", "DISCLOSE": "#34d399",
+                    "IGNORE": "#94a3b8"}.get(decision, "#94a3b8")
+
+        response_html = (
+            f"<span style='font-family:IBM Plex Mono,monospace;font-size:1rem;"
+            f"font-weight:600;color:{dec_color}'>{decision}</span>"
+            f"<br><br>"
+            f"<span style='color:#64748b;font-size:0.75rem;text-transform:uppercase;"
+            f"letter-spacing:0.08em'>Materiality</span>&nbsp;&nbsp;"
+            f"<span style='font-family:IBM Plex Mono,monospace;color:{level_color}'>"
+            f"{mat.get('score', 0)}/100 — {mat.get('level', '')}</span>"
+            f"<br><br>"
+            f"<span style='color:#94a3b8'>{rationale}</span>"
+            f"<br><br>"
+            f"<span style='color:#4b5563;font-size:0.8rem;font-style:italic'>"
+            f"→ See Anomalies, Regulations, Financials and Scenario tabs for full breakdown.</span>"
+        )
 
         st.session_state.messages.append({
             "role": "assistant",
-            "content": response_text
+            "content": response_html
         })
-        st.rerun()
 
 
 # ── RIGHT: Analysis Panel ─────────────────────────────────────────────────────
@@ -628,9 +648,16 @@ with col_analysis:
         st.caption(result.get("decision_rationale", "")[:200])
 
         # ── Tabs ──
-        tab1, tab2, tab3, tab4 = st.tabs([
-            "📊 Anomalies", "🏛 Regulations", "📈 Financials", "🎯 Scenario"
-        ])
+        intent = result.get("query_intent", "mixed")
+
+        # Label the active tab so user knows what's most relevant
+        tab_labels = {
+            "aml":        ["📊 Anomalies ●", "🏛 Regulations", "📈 Financials", "🎯 Scenario"],
+            "financial":  ["📈 Financials ●", "📊 Anomalies", "🏛 Regulations", "🎯 Scenario"],
+            "compliance": ["🏛 Regulations ●", "📊 Anomalies", "📈 Financials", "🎯 Scenario"],
+        }.get(intent, ["📊 Anomalies", "🏛 Regulations", "📈 Financials", "🎯 Scenario"])
+
+        tab1, tab2, tab3, tab4 = st.tabs(tab_labels)
 
         with tab1:
             mat = result.get("materiality_detail", {})
@@ -708,7 +735,18 @@ with col_analysis:
                         unsafe_allow_html=True
                     )
             else:
-                st.info("No regulatory citations retrieved for this query.")
+                #st.info("No regulatory citations retrieved for this query.")
+                # In tab2 (Regulations) — when no RAG results
+                st.markdown(
+                    "<div style='background:#0f1729;border:1px solid #1e3a5f;border-radius:8px;"
+                    "padding:1.2rem;text-align:center;margin-top:1rem'>"
+                    "<div style='color:#4b5563;font-size:0.8rem;margin-bottom:0.6rem'>"
+                    "No regulatory citations for this query type.</div>"
+                    "<div style='color:#3b82f6;font-size:0.75rem;font-style:italic'>"
+                    "Try: \"What does FFIEC say about suspicious activity reporting?\"</div>"
+                    "</div>",
+                    unsafe_allow_html=True
+                )
 
             flags = result.get("compliance_flags", [])
             if flags:
@@ -748,9 +786,20 @@ with col_analysis:
                     unsafe_allow_html=True
                 )
             else:
-                st.info("Run a financial query to see EDGAR statement analysis here.")
+                #st.info("Run a financial query to see EDGAR statement analysis here.")
+                #st.markdown(
+                #    "_Try: 'Analyze JPMorgan financial statements for materiality anomalies'_"
+                #)
+                # In tab3 (Financials) — when no financial data
                 st.markdown(
-                    "_Try: 'Analyze JPMorgan financial statements for materiality anomalies'_"
+                    "<div style='background:#0f1729;border:1px solid #1e3a5f;border-radius:8px;"
+                    "padding:1.2rem;text-align:center;margin-top:1rem'>"
+                    "<div style='color:#4b5563;font-size:0.8rem;margin-bottom:0.6rem'>"
+                    "No financial statement analysis for this query.</div>"
+                    "<div style='color:#3b82f6;font-size:0.75rem;font-style:italic'>"
+                    "Try: \"Analyze JPMorgan financial statements for materiality anomalies\"</div>"
+                    "</div>",
+                    unsafe_allow_html=True
                 )
 
         with tab4:
