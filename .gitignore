@@ -12,3 +12,5 @@ data/processed/banksim_processed.csv
 data/raw/
 rag/vectorstore/
 venv/
+data/processed/*.csv
+data/raw/
