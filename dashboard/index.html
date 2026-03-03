@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AuditMind — Agentic AI Audit Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+/* ── RESET & BASE ──────────────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #1c2431;
+  --border:   #30363d;
+  --blue:     #58a6ff;
+  --blue2:    #1f6feb;
+  --green:    #3fb950;
+  --red:      #f85149;
+  --amber:    #d2a020;
+  --purple:   #bc8cff;
+  --muted:    #8b949e;
+  --text:     #c9d1d9;
+  --white:    #f0f6fc;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans',sans-serif;
+  font-size:14px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ── NAV ───────────────────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(13,17,23,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:56px;
+}
+.nav-logo{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:1.1rem;font-weight:600;color:var(--blue);
+  letter-spacing:0.15em;
+}
+.nav-links{display:flex;gap:0;list-style:none;}
+.nav-links a{
+  color:var(--muted);text-decoration:none;
+  font-size:0.78rem;letter-spacing:0.05em;
+  padding:0.4rem 0.9rem;border-radius:6px;
+  transition:color 0.2s,background 0.2s;
+}
+.nav-links a:hover{color:var(--blue);background:rgba(88,166,255,0.08);}
+.nav-badge{
+  background:rgba(63,185,80,0.12);border:1px solid var(--green);
+  color:var(--green);font-size:0.7rem;font-family:'IBM Plex Mono',monospace;
+  padding:0.2rem 0.6rem;border-radius:20px;letter-spacing:0.05em;
+  display:flex;align-items:center;gap:6px;
+}
+.pulse-dot{
+  width:6px;height:6px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 6px var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+
+/* ── HERO ──────────────────────────────────────────────────────────────── */
+#hero{
+  min-height:100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(31,111,235,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(63,185,80,0.06) 0%, transparent 50%),
+    var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:6rem 2rem 4rem;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+}
+.hero-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+  letter-spacing:0.2em;color:var(--blue);
+  background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.2);
+  padding:0.3rem 1rem;border-radius:20px;margin-bottom:1.5rem;
+  display:inline-block;
+}
+h1.hero-title{
+  font-size:clamp(2.5rem,6vw,5rem);
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;letter-spacing:0.05em;
+  color:var(--white);line-height:1.1;
+  margin-bottom:1rem;
+}
+h1.hero-title span{color:var(--blue);}
+.hero-sub{
+  font-size:1rem;color:var(--muted);max-width:620px;
+  margin:0 auto 2.5rem;line-height:1.8;
+}
+.hero-cta{
+  display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+  margin-bottom:3rem;
+}
+.btn-primary{
+  background:var(--blue2);color:var(--white);
+  border:none;padding:0.75rem 2rem;border-radius:8px;
+  font-size:0.9rem;font-weight:500;cursor:pointer;
+  text-decoration:none;display:inline-block;
+  transition:background 0.2s,transform 0.15s,box-shadow 0.2s;
+  box-shadow:0 0 20px rgba(31,111,235,0.3);
+}
+.btn-primary:hover{background:#388bfd;transform:translateY(-1px);box-shadow:0 0 30px rgba(31,111,235,0.5);}
+.btn-secondary{
+  background:transparent;color:var(--text);
+  border:1px solid var(--border);padding:0.75rem 2rem;border-radius:8px;
+  font-size:0.9rem;font-weight:500;cursor:pointer;
+  text-decoration:none;display:inline-block;
+  transition:border-color 0.2s,color 0.2s;
+}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── KPI COUNTERS ──────────────────────────────────────────────────────── */
+.kpi-strip{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;max-width:960px;width:100%;
+  margin:0 auto;
+}
+.kpi-cell{
+  background:var(--bg2);
+  padding:1.5rem 1.2rem;text-align:center;
+  position:relative;overflow:hidden;
+}
+.kpi-cell::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:60%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--blue),transparent);
+}
+.kpi-label{
+  font-size:0.65rem;letter-spacing:0.12em;color:var(--muted);
+  text-transform:uppercase;font-family:'IBM Plex Mono',monospace;
+  margin-bottom:0.4rem;
+}
+.kpi-value{
+  font-size:2rem;font-weight:600;font-family:'IBM Plex Mono',monospace;
+  color:var(--blue);line-height:1;margin-bottom:0.2rem;
+}
+.kpi-sub{font-size:0.7rem;color:var(--muted);}
+
+/* ── SECTIONS ──────────────────────────────────────────────────────────── */
+section{padding:5rem 2rem;}
+.section-inner{max-width:1300px;margin:0 auto;}
+.section-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+  letter-spacing:0.2em;color:var(--blue);text-transform:uppercase;
+  margin-bottom:0.5rem;
+}
+.section-title{
+  font-size:1.8rem;font-weight:600;color:var(--white);
+  margin-bottom:0.5rem;
+}
+.section-desc{color:var(--muted);max-width:600px;margin-bottom:2.5rem;font-size:0.9rem;}
+
+/* ── COMMAND CENTER ────────────────────────────────────────────────────── */
+#command{background:var(--bg);}
+.command-grid{
+  display:grid;
+  grid-template-columns:300px 1fr 280px;
+  gap:1.5rem;align-items:start;
+}
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:1.5rem;
+}
+.card-title{
+  font-family:'IBM Plex Mono',monospace;font-size:0.68rem;
+  letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;
+  margin-bottom:1.2rem;
+  padding-bottom:0.6rem;border-bottom:1px solid var(--border);
+}
+
+/* Decision badge */
+.decision-badge{
+  display:flex;align-items:center;gap:0.75rem;
+  background:rgba(210,160,32,0.1);border:1px solid var(--amber);
+  border-radius:10px;padding:1rem 1.2rem;margin-bottom:1rem;
+}
+.badge-dot{
+  width:12px;height:12px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 8px var(--amber);flex-shrink:0;
+  animation:pulse 2s ease-in-out infinite;
+}
+.badge-text{font-size:1.1rem;font-weight:600;color:var(--amber);font-family:'IBM Plex Mono',monospace;}
+.badge-sub{font-size:0.72rem;color:var(--muted);margin-top:0.15rem;}
+
+/* Gauge */
+.gauge-wrap{position:relative;width:100%;max-width:200px;margin:0 auto;}
+canvas#gaugeCanvas{display:block;width:100%!important;}
+.gauge-center{
+  position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+.gauge-num{font-size:1.8rem;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--amber);}
+.gauge-label{font-size:0.65rem;color:var(--muted);letter-spacing:0.1em;}
+
+/* Playbook cards */
+.playbook-card{
+  border-radius:8px;padding:0.9rem 1rem;margin-bottom:0.7rem;
+  border-left:3px solid;
+}
+.playbook-card.bull{background:rgba(63,185,80,0.06);border-color:var(--green);}
+.playbook-card.trans{background:rgba(210,160,32,0.06);border-color:var(--amber);}
+.playbook-card.bear{background:rgba(248,81,73,0.06);border-color:var(--red);}
+.playbook-regime{font-size:0.72rem;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:0.1em;}
+.playbook-card.bull .playbook-regime{color:var(--green);}
+.playbook-card.trans .playbook-regime{color:var(--amber);}
+.playbook-card.bear .playbook-regime{color:var(--red);}
+.playbook-text{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;}
+
+/* ── CHARTS GRID ───────────────────────────────────────────────────────── */
+.charts-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.charts-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;}
+.chart-wrap{position:relative;height:260px;}
+.chart-wrap.tall{height:320px;}
+.chart-wrap.short{height:200px;}
+
+/* ── HEATMAP (CSS grid — no canvas) ───────────────────────────────────── */
+.heatmap-wrap{overflow-x:auto;}
+.heatmap-table{width:100%;border-collapse:separate;border-spacing:2px;}
+.hm-th{
+  font-size:0.65rem;letter-spacing:0.08em;color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;padding:0.4rem 0.6rem;
+  text-align:center;white-space:nowrap;
+}
+.hm-ticker{
+  font-size:0.75rem;font-family:'IBM Plex Mono',monospace;
+  color:var(--text);padding:0.4rem 0.8rem;
+  white-space:nowrap;
+}
+.hm-cell{
+  text-align:center;padding:0.5rem 0.4rem;border-radius:4px;
+  font-size:0.72rem;font-family:'IBM Plex Mono',monospace;
+  font-weight:500;transition:opacity 0.2s;cursor:default;
+}
+.hm-cell:hover{opacity:0.85;transform:scale(1.05);}
+
+/* ── MODEL COMPARISON ──────────────────────────────────────────────────── */
+.model-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+.model-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:10px;
+  padding:1.2rem;text-align:center;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.model-card:hover{border-color:var(--blue);box-shadow:0 0 20px rgba(88,166,255,0.1);}
+.model-name{font-family:'IBM Plex Mono',monospace;font-size:0.8rem;font-weight:600;margin-bottom:0.8rem;}
+.model-stat{margin:0.3rem 0;}
+.model-stat-val{font-size:1.4rem;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.model-stat-lab{font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;}
+
+/* ── FEATURE IMPORTANCE ────────────────────────────────────────────────── */
+.feat-bar-wrap{margin-bottom:0.6rem;}
+.feat-label{
+  font-size:0.72rem;font-family:'IBM Plex Mono',monospace;
+  color:var(--text);margin-bottom:0.2rem;
+  display:flex;justify-content:space-between;
+}
+.feat-track{background:var(--bg);border-radius:4px;height:10px;overflow:hidden;}
+.feat-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1);}
+
+/* ── REGIME TIMELINE ───────────────────────────────────────────────────── */
+.regime-legend{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+.regime-dot{
+  display:flex;align-items:center;gap:0.4rem;
+  font-size:0.72rem;font-family:'IBM Plex Mono',monospace;color:var(--muted);
+}
+.rdot{width:10px;height:10px;border-radius:50%;}
+
+/* ── AGENT PIPELINE ────────────────────────────────────────────────────── */
+.pipeline{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:1.5rem 0;}
+.agent-node{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:8px;padding:0.6rem 1rem;
+  font-size:0.72rem;font-family:'IBM Plex Mono',monospace;color:var(--blue);
+  white-space:nowrap;position:relative;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.agent-node:hover{border-color:var(--blue);box-shadow:0 0 12px rgba(88,166,255,0.2);}
+.agent-arrow{
+  color:var(--muted);font-size:0.9rem;padding:0 0.4rem;
+  flex-shrink:0;
+}
+
+/* ── FOOTER ────────────────────────────────────────────────────────────── */
+footer{
+  background:var(--bg2);border-top:1px solid var(--border);
+  padding:2.5rem 2rem;text-align:center;
+}
+.footer-logo{
+  font-family:'IBM Plex Mono',monospace;font-size:1rem;
+  font-weight:600;color:var(--blue);letter-spacing:0.15em;margin-bottom:0.5rem;
+}
+.footer-sub{font-size:0.75rem;color:var(--muted);margin-bottom:1rem;}
+.footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:0.78rem;transition:color 0.2s;}
+.footer-links a:hover{color:var(--blue);}
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  .command-grid{grid-template-columns:1fr;}
+  .charts-grid-2,.charts-grid-3,.model-cards{grid-template-columns:1fr;}
+  .kpi-strip{grid-template-columns:repeat(2,1fr);}
+  .nav-links{display:none;}
+}
+
+/* ── LOADING OVERLAY ───────────────────────────────────────────────────── */
+#loading{
+  position:fixed;inset:0;background:var(--bg);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+  transition:opacity 0.5s;
+}
+.loading-logo{
+  font-family:'IBM Plex Mono',monospace;font-size:2rem;
+  font-weight:600;color:var(--blue);letter-spacing:0.15em;
+  animation:blink 1s step-start infinite;
+}
+@keyframes blink{50%{opacity:0.3}}
+.loading-bar{
+  width:200px;height:2px;background:var(--border);border-radius:1px;overflow:hidden;
+}
+.loading-fill{
+  height:100%;background:var(--blue);border-radius:1px;
+  animation:loadbar 1.5s ease-in-out forwards;
+}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{font-size:0.72rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:0.1em;}
+
+/* ── UTILITY ───────────────────────────────────────────────────────────── */
+.text-blue{color:var(--blue);}
+.text-green{color:var(--green);}
+.text-red{color:var(--red);}
+.text-amber{color:var(--amber);}
+.text-muted{color:var(--muted);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.divider{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loading">
+  <div class="loading-logo">AUDITMIND</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-text">Initializing 9 agents · Loading 8.5M records</div>
+</div>
+
+<!-- ── NAV ──────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-logo">AUDITM<span style="color:#c9d1d9">I</span>ND</div>
+  <ul class="nav-links">
+    <li><a href="#command">Command Center</a></li>
+    <li><a href="#aml">AML Intelligence</a></li>
+    <li><a href="#financials">Financials</a></li>
+    <li><a href="#models">Models</a></li>
+    <li><a href="#regime">Regime</a></li>
+    <li><a href="#explainability">Explainability</a></li>
+  </ul>
+  <div class="nav-badge"><span class="pulse-dot"></span>SYSTEM ONLINE · 9 AGENTS</div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-tag">AGENTIC AI · FINANCIAL AUDIT · AML INTELLIGENCE</div>
+  <h1 class="hero-title">AUDIT<span>M</span>IND</h1>
+  <p class="hero-sub">
+    9-agent LangGraph platform for financial crime detection and audit risk assessment.
+    Glass-box AI — every decision explained, every signal traced.
+  </p>
+  <div class="hero-cta">
+    <a href="#" class="btn-primary" onclick="openStreamlit()">▶ Run Analysis</a>
+    <a href="#command" class="btn-secondary">Explore Dashboard</a>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi-cell">
+      <div class="kpi-label">Transactions</div>
+      <div class="kpi-value" id="kpi-tx">0</div>
+      <div class="kpi-sub">PaySim high-risk subset</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">Structuring Flags</div>
+      <div class="kpi-value text-red" id="kpi-struct">0</div>
+      <div class="kpi-sub">FATF Rec. 10 threshold avoidance</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">EDGAR Records</div>
+      <div class="kpi-value text-amber" id="kpi-edgar">0</div>
+      <div class="kpi-sub">10 banks · 20+ years</div>
+    </div>
+    <div class="kpi-cell">
+      <div class="kpi-label">RAG Corpus</div>
+      <div class="kpi-value text-green" id="kpi-rag">0</div>
+      <div class="kpi-sub">FATF + FFIEC regulatory chunks</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── COMMAND CENTER ────────────────────────────────────────────────────── -->
+<section id="command" style="background:var(--bg3);padding:4rem 2rem;">
+  <div class="section-inner">
+    <div class="section-tag">Command Center</div>
+    <div class="section-title">War Room View</div>
+    <div class="section-desc">Live audit decision, materiality gauge, and regime playbook.</div>
+    <div class="command-grid">
+
+      <!-- Left: Decision + gauge -->
+      <div>
+        <div class="card" style="margin-bottom:1rem;">
+          <div class="card-title">Current Decision</div>
+          <div class="decision-badge">
+            <div class="badge-dot"></div>
+            <div>
+              <div class="badge-text" id="decision-text">REVIEW</div>
+              <div class="badge-sub">Materiality 25/100 · Confidence 65%</div>
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:var(--muted);line-height:1.7;margin-top:0.5rem;" id="decision-rationale">
+            Late filing history and operating expense anomalies detected.
+            Below INVESTIGATE threshold — schedule next audit cycle review.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Materiality Gauge</div>
+          <div class="gauge-wrap">
+            <canvas id="gaugeCanvas" height="160"></canvas>
+            <div class="gauge-center">
+              <div class="gauge-num" id="gauge-num">25</div>
+              <div class="gauge-label">/100</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
+            <span style="font-size:0.65rem;color:var(--green);">LOW</span>
+            <span style="font-size:0.65rem;color:var(--amber);">MEDIUM</span>
+            <span style="font-size:0.65rem;color:var(--red);">HIGH</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Risk heatmap -->
+      <div class="card">
+        <div class="card-title">Enterprise Risk Heatmap — All Companies × Risk Dimensions</div>
+        <div class="heatmap-wrap">
+          <table class="heatmap-table" id="heatmapTable">
+            <thead><tr id="heatmapHeader"></tr></thead>
+            <tbody id="heatmapBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Playbook -->
+      <div class="card">
+        <div class="card-title">Analyst Playbook — Regime Strategy</div>
+        <div class="playbook-card bull">
+          <div class="playbook-regime">● LOW RISK</div>
+          <div class="playbook-text">Normal transaction volume. Standard monitoring. Key signal: structuring_flag, balance_drain at baseline.</div>
+        </div>
+        <div class="playbook-card trans">
+          <div class="playbook-regime">● TRANSITION</div>
+          <div class="playbook-text">Elevated structuring patterns. Increase monitoring cadence. Cross-check with EDGAR late filing signals.</div>
+        </div>
+        <div class="playbook-card bear">
+          <div class="playbook-regime">● HIGH RISK</div>
+          <div class="playbook-text">Multiple concurrent FATF flags. Fan-out + balance drain co-occurring. Immediate SAR review warranted.</div>
+        </div>
+        <hr class="divider">
+        <div class="card-title" style="margin-top:0.5rem;">Agent Pipeline</div>
+        <div class="pipeline" id="pipeline">
+          <div class="agent-node">planner</div><div class="agent-arrow">→</div>
+          <div class="agent-node">anomaly</div><div class="agent-arrow">→</div>
+          <div class="agent-node">data_analyst</div><div class="agent-arrow">→</div>
+          <div class="agent-node">rag</div><div class="agent-arrow">→</div>
+          <div class="agent-node">compliance</div><div class="agent-arrow">→</div>
+          <div class="agent-node">materiality</div><div class="agent-arrow">→</div>
+          <div class="agent-node">explainability</div><div class="agent-arrow">→</div>
+          <div class="agent-node">decision</div><div class="agent-arrow">→</div>
+          <div class="agent-node">scenario</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── AML INTELLIGENCE ───────────────────────────────────────────────────── -->
+<section id="aml">
+  <div class="section-inner">
+    <div class="section-tag">AML Transaction Intelligence</div>
+    <div class="section-title">Financial Crime Detection</div>
+    <div class="section-desc">PaySim 6.3M transactions · 6 FATF behavioral features · Isolation Forest anomaly detection</div>
+    <div class="charts-grid-2" style="margin-bottom:1.5rem;">
+      <div class="card">
+        <div class="card-title">Structuring Cliff — $10K Threshold Avoidance</div>
+        <div class="chart-wrap"><canvas id="cliffChart"></canvas></div>
+        <p style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;">
+          Red bars = transactions below $10,000 CTR reporting threshold.
+          Artificial pile-up indicates deliberate structuring behavior (FATF Rec. 10).
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title">AML Flag Radar — 6 FATF Dimensions</div>
+        <div class="chart-wrap"><canvas id="radarChart"></canvas></div>
+      </div>
+    </div>
+    <div class="charts-grid-2">
+      <div class="card">
+        <div class="card-title">Transaction Volume & Anomaly Spikes Over Time</div>
+        <div class="chart-wrap"><canvas id="txVolumeChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">AML Risk Score Distribution</div>
+        <div class="chart-wrap"><canvas id="riskDistChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FINANCIALS ─────────────────────────────────────────────────────────── -->
+<section id="financials" style="background:var(--bg3);">
+  <div class="section-inner">
+    <div class="section-tag">Financial Statement Analysis</div>
+    <div class="section-title">SEC EDGAR Intelligence</div>
+    <div class="section-desc">10 major US banks · 20+ years quarterly data · 14 engineered metrics</div>
+    <div class="charts-grid-2" style="margin-bottom:1.5rem;">
+      <div class="card">
+        <div class="card-title">Profit Margin — All Companies (Latest Quarter)</div>
+        <div class="chart-wrap"><canvas id="profitChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">YoY Operating Expense Change — All Companies</div>
+        <div class="chart-wrap"><canvas id="yoyChart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">SEC Filing Timeline — Days to File (Latest Period · Deadline = 60 days)</div>
+      <div class="chart-wrap tall"><canvas id="filingChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODEL COMPARISON ───────────────────────────────────────────────────── -->
+<section id="models">
+  <div class="section-inner">
+    <div class="section-tag">Multi-Model Comparison</div>
+    <div class="section-title">Isolation Forest vs LOF vs Autoencoder</div>
+    <div class="section-desc">
+      All three unsupervised anomaly detection algorithms run on the same 20K transaction sample.
+      Consensus = flagged by 2+ models simultaneously.
+    </div>
+    <div class="model-cards" id="modelCards">
+      <!-- Filled by JS -->
+    </div>
+    <div class="charts-grid-2">
+      <div class="card">
+        <div class="card-title">Anomaly Score Distribution — All Models</div>
+        <div class="chart-wrap tall"><canvas id="modelScoreChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Feature Importance — Permutation-Based (Isolation Forest)</div>
+        <div id="featImportance" style="padding-top:0.5rem;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── REGIME TIMELINE ────────────────────────────────────────────────────── -->
+<section id="regime" style="background:var(--bg3);">
+  <div class="section-inner">
+    <div class="section-tag">HMM Regime Detection</div>
+    <div class="section-title">AML Activity Regimes Over Time</div>
+    <div class="section-desc">
+      Hidden Markov Model on transaction volume and structuring patterns.
+      Detects LOW RISK / TRANSITION / HIGH RISK regimes across PaySim time steps.
+    </div>
+    <div class="regime-legend">
+      <div class="regime-dot"><div class="rdot" style="background:var(--green)"></div>LOW RISK</div>
+      <div class="regime-dot"><div class="rdot" style="background:var(--amber)"></div>TRANSITION</div>
+      <div class="regime-dot"><div class="rdot" style="background:var(--red)"></div>HIGH RISK</div>
+    </div>
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-title">Transaction Volume + Regime Classification Over Time</div>
+      <div class="chart-wrap tall"><canvas id="regimeChart"></canvas></div>
+    </div>
+    <div class="charts-grid-3" id="regimeCounts">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ── EXPLAINABILITY ─────────────────────────────────────────────────────── -->
+<section id="explainability">
+  <div class="section-inner">
+    <div class="section-tag">Glass-Box AI · Explainability</div>
+    <div class="section-title">Every Decision Explained</div>
+    <div class="section-desc">
+      Confidence breakdown, data sources, agent execution trace.
+      AuditMind never returns a black-box output — every flag has a traceable reason.
+    </div>
+    <div class="charts-grid-2">
+      <div class="card">
+        <div class="card-title">Confidence Score Breakdown</div>
+        <div class="chart-wrap"><canvas id="confidenceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Data Sources Used</div>
+        <div style="margin-top:0.5rem;" id="dataSources">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+            <span class="mono" style="font-size:0.78rem;color:var(--blue);">PaySim</span>
+            <span style="font-size:0.72rem;color:var(--muted);" id="ds-paysim">Loading...</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+            <span class="mono" style="font-size:0.78rem;color:var(--amber);">EDGAR</span>
+            <span style="font-size:0.72rem;color:var(--muted);" id="ds-edgar">Loading...</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+            <span class="mono" style="font-size:0.78rem;color:var(--purple);">RAG Corpus</span>
+            <span style="font-size:0.72rem;color:var(--muted);">450 chunks · FATF + FFIEC</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0;">
+            <span class="mono" style="font-size:0.78rem;color:var(--green);">LLM</span>
+            <span style="font-size:0.72rem;color:var(--muted);">Groq llama-3.3-70b + Gemini fallback</span>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="card-title">Limitations</div>
+        <div style="font-size:0.75rem;color:var(--muted);line-height:1.8;">
+          • PaySim is synthetic — real deployment requires actual transaction feeds<br>
+          • IsolationForest flags statistical outliers, not confirmed fraud<br>
+          • RAG relevance 0.49–0.675 — some citations have moderate relevance only<br>
+          • LLM-generated narratives are not audited numerical claims
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-logo">AUDITMIND</div>
+  <div class="footer-sub">
+    Agentic AI · Financial Audit · AML Intelligence · Glass-Box AI<br>
+    LangGraph · Groq · ChromaDB · Isolation Forest · HMM · SHAP
+  </div>
+  <div class="footer-links">
+    <a href="#" onclick="openStreamlit()">▶ Launch Full Platform</a>
+    <a href="https://github.com">GitHub</a>
+    <a href="#hero">Back to top</a>
+  </div>
+  <div style="margin-top:1rem;font-size:0.65rem;color:var(--muted);">
+    Built March 2026 · Python · LangGraph · Streamlit · Chart.js
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════════════════ -->
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const DATA_BASE = './data/';
+const STREAMLIT_URL = 'http://localhost:8501/'; // Update with deployed URL
+
+function openStreamlit(){ window.open(STREAMLIT_URL,'_blank'); }
+
+// ── LOADING ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading').style.opacity = '0';
+    setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
+  }, 1600);
+});
+
+// ── FETCH HELPER ─────────────────────────────────────────────────────────────
+async function fetchJSON(name) {
+  try {
+    const r = await fetch(`${DATA_BASE}${name}.json`);
+    if (!r.ok) throw new Error(`${name} not found`);
+    return await r.json();
+  } catch {
+    return null;
+  }
+}
+
+// ── COUNTER ANIMATION ────────────────────────────────────────────────────────
+function animateCount(el, target, duration=2000, prefix='', suffix='') {
+  const start = performance.now();
+  const isFloat = String(target).includes('.');
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 4);
+    const val = target * ease;
+    el.textContent = prefix + (isFloat ? val.toFixed(1) : Math.floor(val).toLocaleString()) + suffix;
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = prefix + (isFloat ? target.toFixed(1) : Math.floor(target).toLocaleString()) + suffix;
+  }
+  requestAnimationFrame(step);
+}
+
+// ── CANVAS GAUGE ─────────────────────────────────────────────────────────────
+function drawGauge(value) {
+  const canvas = document.getElementById('gaugeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 200; canvas.height = 120;
+  const cx = 100, cy = 100, r = 80;
+  const startA = Math.PI, endA = 2 * Math.PI;
+  const valueA = startA + (value / 100) * Math.PI;
+  const color = value >= 70 ? '#f85149' : value >= 40 ? '#d2a020' : '#3fb950';
+
+  // Background arc
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, startA, endA);
+  ctx.strokeStyle = '#21262d';
+  ctx.lineWidth = 18;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Zone arcs
+  const zones = [
+    {start:startA,end:startA+Math.PI*0.4,color:'rgba(63,185,80,0.3)'},
+    {start:startA+Math.PI*0.4,end:startA+Math.PI*0.7,color:'rgba(210,160,32,0.3)'},
+    {start:startA+Math.PI*0.7,end:endA,color:'rgba(248,81,73,0.3)'},
+  ];
+  zones.forEach(z => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, z.start, z.end);
+    ctx.strokeStyle = z.color;
+    ctx.lineWidth = 18;
+    ctx.stroke();
+  });
+
+  // Value arc — animated
+  let current = 0;
+  function animate() {
+    if (current >= value) return;
+    current = Math.min(current + 1.5, value);
+    ctx.clearRect(0, 0, 200, 120);
+
+    // Redraw background
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startA, endA);
+    ctx.strokeStyle = '#21262d';
+    ctx.lineWidth = 18;
+    ctx.stroke();
+
+    // Zones
+    zones.forEach(z => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, z.start, z.end);
+      ctx.strokeStyle = z.color;
+      ctx.lineWidth = 18;
+      ctx.stroke();
+    });
+
+    // Value
+    const va = startA + (current / 100) * Math.PI;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startA, va);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // Glow
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.max(startA, va - 0.1), va);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 20;
+    ctx.globalAlpha = 0.3;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    document.getElementById('gauge-num').textContent = Math.floor(current);
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────────
+Chart.defaults.color = '#8b949e';
+Chart.defaults.font.family = 'IBM Plex Mono';
+Chart.defaults.font.size = 10;
+const GRID = { color: 'rgba(48,54,61,0.6)', drawBorder: false };
+
+// ── HEATMAP ───────────────────────────────────────────────────────────────────
+function renderHeatmap(data) {
+  const header = document.getElementById('heatmapHeader');
+  const body   = document.getElementById('heatmapBody');
+  if (!data || !header || !body) return;
+
+  header.innerHTML = '<th class="hm-th"></th>' +
+    data.dimensions.map(d => `<th class="hm-th">${d}</th>`).join('');
+
+  function scoreColor(v) {
+    const r = v < 30 ? [13,50,33] : v < 60 ? [74,59,0] : [192,57,43];
+    const g = v < 30 ? [26,74,26] : v < 60 ? [122,40,0] : [192,57,43];
+    const base = v < 30 ? [13,50,33] : v < 60 ? [74,59,0] : [120,20,20];
+    return `rgb(${base[0]},${base[1]},${base[2]})`;
+  }
+  function textColor(v) { return v > 40 ? '#f0f6fc' : '#8b949e'; }
+
+  body.innerHTML = data.tickers.map((t,i) =>
+    `<tr><td class="hm-ticker">${t}</td>` +
+    data.scores[i].map(v =>
+      `<td class="hm-cell" style="background:${scoreColor(v)};color:${textColor(v)}" title="${v}/100">${v}</td>`
+    ).join('') + '</tr>'
+  ).join('');
+}
+
+// ── STRUCTURING CLIFF ─────────────────────────────────────────────────────────
+function renderCliff(data) {
+  const ctx = document.getElementById('cliffChart');
+  if (!ctx || !data) return;
+  const colors = data.bins.map(b => b < data.threshold ? '#f85149' : '#484f58');
+  new Chart(ctx, {
+    type:'bar',
+    data: {
+      labels: data.bins.map(b => '$'+Math.round(b).toLocaleString()),
+      datasets:[{
+        data: data.counts, backgroundColor: colors,
+        borderColor: '#0d1117', borderWidth: 0.5,
+        hoverBackgroundColor: colors.map(c => c==='#f85149'?'#ff6b6b':'#6e7681'),
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:d=>`Transactions: ${d.raw.toLocaleString()}`}},
+        annotation:{
+          annotations:{
+            line1:{type:'line',xMin:data.threshold,xMax:data.threshold,
+              borderColor:'#ffd700',borderWidth:2,borderDash:[5,5],
+              label:{content:'$10K threshold',display:true,color:'#ffd700',
+                font:{size:9},position:'start',backgroundColor:'rgba(0,0,0,0.7)'}},
+          }
+        }
+      },
+      scales:{
+        x:{grid:GRID, ticks:{maxTicksLimit:8, font:{size:8}}},
+        y:{grid:GRID, ticks:{font:{size:8}}}
+      }
+    }
+  });
+}
+
+// ── AML RADAR ─────────────────────────────────────────────────────────────────
+function renderRadar(data) {
+  const ctx = document.getElementById('radarChart');
+  if (!ctx || !data) return;
+  new Chart(ctx, {
+    type:'radar',
+    data:{
+      labels: data.labels,
+      datasets:[{
+        data: data.values.map(v=>v*100),
+        backgroundColor:'rgba(248,81,73,0.15)',
+        borderColor:'#f85149', borderWidth:2,
+        pointBackgroundColor:'#f85149', pointRadius:4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          label:d=>`${d.label}: ${data.raw[d.dataIndex].toLocaleString()} transactions`
+        }},
+      },
+      scales:{r:{
+        grid:{color:'rgba(48,54,61,0.6)'},
+        angleLines:{color:'rgba(48,54,61,0.6)'},
+        ticks:{display:false},
+        pointLabels:{color:'#c9d1d9',font:{size:10}},
+        min:0, max:100,
+      }}
+    }
+  });
+}
+
+// ── TRANSACTION VOLUME TIMELINE ────────────────────────────────────────────────
+function renderTxVolume(data) {
+  const ctx = document.getElementById('txVolumeChart');
+  if (!ctx || !data) return;
+  const spikeColors = data.counts.map((v,i) =>
+    data.spikes[i] ? 'rgba(248,81,73,0.9)' : 'rgba(88,166,255,0.6)'
+  );
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.steps,
+      datasets:[{
+        label:'Transactions',
+        data: data.counts,
+        backgroundColor: spikeColors,
+        borderWidth:0,
+      },{
+        label:'Structuring',
+        data: data.struct,
+        type:'line',
+        borderColor:'#f85149', borderWidth:1.5,
+        backgroundColor:'transparent',
+        pointRadius:0, yAxisID:'y2',
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,labels:{boxWidth:8,font:{size:9},color:'#8b949e'}},
+        tooltip:{mode:'index',intersect:false},
+        annotation:{annotations:{
+          threshold:{type:'line',yMin:data.threshold,yMax:data.threshold,
+            borderColor:'rgba(248,81,73,0.4)',borderWidth:1,borderDash:[4,4],
+            label:{content:'Spike threshold',display:true,color:'#f85149',
+              font:{size:8},position:'start',backgroundColor:'transparent'}},
+        }}
+      },
+      scales:{
+        x:{grid:GRID,ticks:{maxTicksLimit:10,font:{size:8}}},
+        y:{grid:GRID,ticks:{font:{size:8}},title:{display:true,text:'Tx Count',font:{size:9}}},
+        y2:{position:'right',grid:{display:false},ticks:{font:{size:8}},
+          title:{display:true,text:'Structuring',font:{size:9}}},
+      }
+    }
+  });
+}
+
+// ── RISK SCORE DIST ────────────────────────────────────────────────────────────
+function renderRiskDist(data) {
+  const ctx = document.getElementById('riskDistChart');
+  if (!ctx || !data) return;
+  const colors = data.labels.map((_,i) =>
+    i < 3 ? '#3fb950' : i < 6 ? '#d2a020' : '#f85149'
+  );
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.labels,
+      datasets:[{data:data.counts,backgroundColor:colors,borderColor:'#0d1117',borderWidth:1}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:d=>`${d.raw.toLocaleString()} transactions`}}},
+      scales:{x:{grid:GRID,ticks:{font:{size:8}}},y:{grid:GRID,ticks:{font:{size:8}}}}
+    }
+  });
+}
+
+// ── PROFIT MARGIN ─────────────────────────────────────────────────────────────
+function renderProfit(data) {
+  const ctx = document.getElementById('profitChart');
+  if (!ctx || !data) return;
+  const colors = data.values.map(v => v >= 0 ? '#3fb950' : '#f85149');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.tickers,
+      datasets:[{
+        data: data.values, backgroundColor: colors, borderColor:'#0d1117', borderWidth:1,
+        borderRadius:4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:d=>`${d.raw.toFixed(1)}%`}}},
+      scales:{
+        x:{grid:GRID,ticks:{font:{size:10,family:'IBM Plex Mono'}}},
+        y:{grid:GRID,ticks:{font:{size:9},callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+// ── YOY EXPENSE ────────────────────────────────────────────────────────────────
+function renderYoY(data) {
+  const ctx = document.getElementById('yoyChart');
+  if (!ctx || !data) return;
+  const colors = data.values.map(v => Math.abs(v)>20?'#f85149':Math.abs(v)>10?'#d2a020':'#3fb950');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.tickers,
+      datasets:[{data:data.values,backgroundColor:colors,borderColor:'#0d1117',borderWidth:1,borderRadius:4}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:d=>`${d.raw.toFixed(1)}%`}},
+        annotation:{annotations:{
+          l1:{type:'line',yMin:20,yMax:20,borderColor:'rgba(248,81,73,0.4)',borderWidth:1,borderDash:[4,4]},
+          l2:{type:'line',yMin:-20,yMax:-20,borderColor:'rgba(63,185,80,0.4)',borderWidth:1,borderDash:[4,4]},
+        }}
+      },
+      scales:{
+        x:{grid:GRID,ticks:{font:{size:10,family:'IBM Plex Mono'}}},
+        y:{grid:GRID,ticks:{font:{size:9},callback:v=>v+'%'}}
+      }
+    }
+  });
+}
+
+// ── FILING TIMELINE ────────────────────────────────────────────────────────────
+function renderFiling(data) {
+  const ctx = document.getElementById('filingChart');
+  if (!ctx || !data) return;
+  const colors = data.days.map(d => d > data.deadline ? '#f85149' : '#3fb950');
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.tickers,
+      datasets:[{
+        data: data.days, backgroundColor: colors,
+        borderColor:'#0d1117', borderWidth:1, borderRadius:4,
+        indexAxis:'y',
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:d=>`${d.raw} days ${d.raw>data.deadline?'⚠ LATE':'✓'}`}},
+        annotation:{annotations:{
+          deadline:{type:'line',xMin:data.deadline,xMax:data.deadline,
+            borderColor:'#ffd700',borderWidth:2,borderDash:[5,5],
+            label:{content:'60-day deadline',display:true,color:'#ffd700',
+              font:{size:9},position:'end',backgroundColor:'rgba(0,0,0,0.7)'}},
+        }}
+      },
+      scales:{
+        x:{grid:GRID,ticks:{font:{size:9}},max:Math.max(...data.days)*1.2},
+        y:{grid:{display:false},ticks:{font:{size:10,family:'IBM Plex Mono'}}}
+      }
+    }
+  });
+}
+
+// ── MODEL COMPARISON CARDS ─────────────────────────────────────────────────────
+function renderModelCards(data) {
+  const container = document.getElementById('modelCards');
+  if (!container || !data) return;
+  const models = ['IsolationForest','LOF','Autoencoder'];
+  const names   = ['Isolation Forest','LOF','Autoencoder'];
+  container.innerHTML = models.map((m,i) => {
+    const d = data[m] || {};
+    const col = d.color || '#8b949e';
+    return `<div class="model-card" style="border-top:3px solid ${col}">
+      <div class="model-name" style="color:${col}">${names[i]}</div>
+      <div class="model-stat">
+        <div class="model-stat-val" style="color:${col}">${(d.flagged||0).toLocaleString()}</div>
+        <div class="model-stat-lab">Transactions Flagged</div>
+      </div>
+      <div class="model-stat" style="margin-top:0.5rem;">
+        <div style="font-size:1rem;font-weight:600;font-family:'IBM Plex Mono',monospace;color:${col}">${d.flag_rate||0}%</div>
+        <div class="model-stat-lab">Flag Rate</div>
+      </div>
+    </div>`;
+  }).join('') +
+  `<div class="model-card" style="border-top:3px solid var(--purple)">
+    <div class="model-name" style="color:var(--purple)">Consensus</div>
+    <div class="model-stat">
+      <div class="model-stat-val" style="color:var(--purple)">${(data.consensus?.flagged||0).toLocaleString()}</div>
+      <div class="model-stat-lab">Flagged by 2+ Models</div>
+    </div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:0.5rem;line-height:1.5;">
+      Highest confidence signal — all models agree.
+    </div>
+  </div>`;
+}
+
+function renderModelScores(data) {
+  const ctx = document.getElementById('modelScoreChart');
+  if (!ctx || !data) return;
+  const models = [
+    {key:'IsolationForest', label:'Isolation Forest', color:'#58a6ff'},
+    {key:'LOF',             label:'LOF',              color:'#f85149'},
+    {key:'Autoencoder',     label:'Autoencoder',      color:'#3fb950'},
+  ];
+  const datasets = models
+    .filter(m => data[m.key]?.scores_sample)
+    .map(m => ({
+      label: m.label,
+      data: data[m.key].scores_sample.map((v,i)=>({x:i,y:v})),
+      borderColor: m.color, backgroundColor:'transparent',
+      borderWidth:1, pointRadius:0, tension:0.3,
+    }));
+  new Chart(ctx, {
+    type:'line',
+    data:{datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,labels:{boxWidth:8,font:{size:9},color:'#8b949e'}},
+        tooltip:{mode:'index',intersect:false},
+      },
+      scales:{
+        x:{grid:GRID,ticks:{font:{size:8}},title:{display:true,text:'Transaction Index',font:{size:9}}},
+        y:{grid:GRID,ticks:{font:{size:8}},title:{display:true,text:'Anomaly Score (normalized)',font:{size:9}}},
+      }
+    }
+  });
+}
+
+// ── FEATURE IMPORTANCE ─────────────────────────────────────────────────────────
+function renderFeatImportance(data) {
+  const container = document.getElementById('featImportance');
+  if (!container || !data) return;
+  const colors = ['#58a6ff','#f85149','#3fb950','#d2a020','#bc8cff','#fb923c'];
+  container.innerHTML = data.features.map((f,i) =>
+    `<div class="feat-bar-wrap">
+      <div class="feat-label">
+        <span>${f.replace('_flag','').replace('_',' ')}</span>
+        <span style="color:${colors[i%colors.length]}">${data.scores[i]}</span>
+      </div>
+      <div class="feat-track">
+        <div class="feat-fill" style="width:0%;background:${colors[i%colors.length]}" data-width="${data.scores[i]}%"></div>
+      </div>
+    </div>`
+  ).join('');
+
+  // Animate bars in
+  setTimeout(() => {
+    container.querySelectorAll('.feat-fill').forEach(el => {
+      el.style.width = el.dataset.width;
+    });
+  }, 300);
+}
+
+// ── REGIME CHART ──────────────────────────────────────────────────────────────
+function renderRegime(data) {
+  const ctx = document.getElementById('regimeChart');
+  if (!ctx || !data) return;
+  const regimeColor = r =>
+    r==='HIGH_RISK'?'rgba(248,81,73,0.8)':r==='TRANSITION'?'rgba(210,160,32,0.8)':'rgba(63,185,80,0.8)';
+
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: data.steps,
+      datasets:[{
+        label:'Transaction Count',
+        data: data.tx_count,
+        backgroundColor: data.regimes.map(r=>regimeColor(r)),
+        borderWidth:0,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          label:(d)=>`Tx: ${d.raw.toLocaleString()}`,
+          afterLabel:(d)=>`Regime: ${data.regimes[d.dataIndex]}`
+        }},
+      },
+      scales:{
+        x:{grid:GRID,ticks:{maxTicksLimit:10,font:{size:8}}},
+        y:{grid:GRID,ticks:{font:{size:8}}}
+      }
+    }
+  });
+
+  // Regime count cards
+  const counts = data.regime_counts;
+  const total  = Object.values(counts).reduce((a,b)=>a+b,0);
+  const cards  = document.getElementById('regimeCounts');
+  if (!cards) return;
+  cards.innerHTML = [
+    {k:'HIGH_RISK',  label:'High Risk',   color:'var(--red)'},
+    {k:'TRANSITION', label:'Transition',  color:'var(--amber)'},
+    {k:'LOW_RISK',   label:'Low Risk',    color:'var(--green)'},
+  ].map(item => `<div class="card" style="text-align:center;border-top:3px solid ${item.color}">
+    <div class="card-title">${item.label} Periods</div>
+    <div style="font-size:2rem;font-weight:600;font-family:'IBM Plex Mono',monospace;color:${item.color}">
+      ${(counts[item.k]||0).toLocaleString()}
+    </div>
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">
+      ${total>0?((counts[item.k]||0)/total*100).toFixed(1):0}% of time steps
+    </div>
+    <div style="font-size:0.65rem;color:var(--muted);margin-top:0.2rem;">Method: ${data.method}</div>
+  </div>`).join('');
+}
+
+// ── CONFIDENCE CHART ──────────────────────────────────────────────────────────
+function renderConfidence() {
+  const ctx = document.getElementById('confidenceChart');
+  if (!ctx) return;
+  // Waterfall-style breakdown
+  new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels:['Baseline','+ PaySim data','+ EDGAR data','+ RAG citations','+ Compliance flags','Final'],
+      datasets:[{
+        data:[50, 8, 5, 4, -2, 65],
+        backgroundColor:['#484f58','#3fb950','#3fb950','#3fb950','#f85149','#d2a020'],
+        borderRadius:4, borderColor:'#0d1117', borderWidth:1,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:d=>`${d.raw>0?'+':''}${d.raw}%`}},
+      },
+      scales:{
+        x:{grid:GRID,ticks:{font:{size:9}}},
+        y:{grid:GRID,ticks:{font:{size:9},callback:v=>v+'%'},min:0,max:100}
+      }
+    }
+  });
+}
+
+// ── INTERSECTION OBSERVER (animate on scroll) ─────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.card,.kpi-cell,.model-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+
+// ── MAIN INIT ─────────────────────────────────────────────────────────────────
+async function init() {
+  const [kpi, cliff, radar, txVol, riskDist,
+         heatmap, filing, profit, yoy,
+         multiModel, featImp, regime] = await Promise.all([
+    fetchJSON('kpi'), fetchJSON('structuring_cliff'), fetchJSON('aml_radar'),
+    fetchJSON('tx_volume'), fetchJSON('risk_score_dist'),
+    fetchJSON('risk_heatmap'), fetchJSON('filing_timeline'),
+    fetchJSON('profit_margin'), fetchJSON('yoy_expense'),
+    fetchJSON('multi_model'), fetchJSON('feature_importance'),
+    fetchJSON('regime_timeline'),
+  ]);
+
+  // KPI counters
+  if (kpi) {
+    animateCount(document.getElementById('kpi-tx'),     kpi.high_risk_tx || 1600000);
+    animateCount(document.getElementById('kpi-struct'),  kpi.structuring_tx || 53573);
+    animateCount(document.getElementById('kpi-edgar'),   kpi.edgar_records || 1478);
+    animateCount(document.getElementById('kpi-rag'),     kpi.rag_chunks || 450);
+    document.getElementById('ds-paysim').textContent = `${(kpi.high_risk_tx||1600000).toLocaleString()} transactions analyzed`;
+    document.getElementById('ds-edgar').textContent  = `${(kpi.edgar_records||1478).toLocaleString()} quarterly filings · ${kpi.companies||10} companies`;
+  }
+
+  // Gauge
+  drawGauge(25);
+
+  // All charts
+  renderHeatmap(heatmap);
+  renderCliff(cliff);
+  renderRadar(radar);
+  renderTxVolume(txVol || {steps:[],counts:[],struct:[],spikes:[],mean:0,threshold:0});
+  renderRiskDist(riskDist || {labels:[],counts:[]});
+  renderProfit(profit || {tickers:[],values:[]});
+  renderYoY(yoy || {tickers:[],values:[]});
+  renderFiling(filing || {tickers:[],days:[],deadline:60});
+  renderModelCards(multiModel || {});
+  renderModelScores(multiModel || {});
+  renderFeatImportance(featImp || {features:[],scores:[]});
+  renderRegime(regime || {steps:[],tx_count:[],regimes:[],regime_counts:{},method:'N/A'});
+  renderConfidence();
+}
+
+init();
+</script>
+</body>
+</html>
