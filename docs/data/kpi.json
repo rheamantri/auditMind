@@ -1,0 +1,12 @@
+{
+  "companies": 10,
+  "edgar_records": 1478,
+  "high_risk_tx": 1557525,
+  "structuring_tx": 53573,
+  "high_materiality": 12,
+  "rag_chunks": 450,
+  "total_transactions": 6360000,
+  "features_engineered": 14,
+  "agents": 9,
+  "oos_months": 144
+}

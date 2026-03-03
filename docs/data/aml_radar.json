@@ -1,0 +1,27 @@
+{
+  "labels": [
+    "Structuring",
+    "Balance Drain",
+    "Bal. Mismatch",
+    "Funds Not Recv",
+    "High Velocity",
+    "Fan-Out"
+  ],
+  "values": [
+    0.0344831359423275,
+    0.9761064624098867,
+    1.0,
+    0.0025862512873326467,
+    0.0,
+    0.0
+  ],
+  "raw": [
+    53573,
+    1516479,
+    1553600,
+    4018,
+    0,
+    0
+  ],
+  "max": 1553600
+}

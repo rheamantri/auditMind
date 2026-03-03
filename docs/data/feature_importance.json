@@ -1,0 +1,19 @@
+{
+  "features": [
+    "structuring_flag",
+    "balance_drain",
+    "funds_not_received",
+    "balance_mismatch",
+    "high_velocity",
+    "fan_out_flag"
+  ],
+  "scores": [
+    100.0,
+    42.3,
+    4.2,
+    3.4,
+    0.0,
+    0.0
+  ],
+  "description": "Permutation-based feature importance \u2014 anomaly score delta when feature is zeroed"
+}
