@@ -16,7 +16,7 @@ from sklearn.inspection import permutation_importance
 warnings.filterwarnings("ignore")
 
 ROOT   = Path(__file__).parent
-OUT    = ROOT / "dashboard" / "data"
+OUT    = ROOT / "docs" / "data"
 OUT.mkdir(parents=True, exist_ok=True)
 
 EDGAR_PATH  = ROOT / "data/processed/edgar_processed.csv"
