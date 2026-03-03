@@ -58,10 +58,15 @@ from groq import Groq
 #import google.generativeai as genai
 from google import genai
 
-groq_client = Groq(api_key=os.getenv("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"))
+#groq_client = Groq(api_key=os.getenv("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"))
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
 #genai.configure(api_key=os.getenv("AIzaSyBjI7o3bKbS5HBJUHs8azRV_IMSV3KsifM"))
 #gemini_model = genai.GenerativeModel("gemini-1.5-flash")
-gemini_client = genai.Client(api_key=os.getenv("AIzaSyBjI7o3bKbS5HBJUHs8azRV_IMSV3KsifM"))
+
+#gemini_client = genai.Client(api_key=os.getenv("AIzaSyBjI7o3bKbS5HBJUHs8azRV_IMSV3KsifM"))
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
 
